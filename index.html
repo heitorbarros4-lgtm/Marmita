@@ -391,7 +391,64 @@
 
       <!-- Grid de Cards das Marmitas (Renderizado via JS para interatividade total) -->
       <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
-        <!-- Os 5 cards serão inseridos aqui pelo script -->
+        <!-- Os cards serão inseridos aqui pelo script -->
+      </div>
+
+      <!-- Pacotes Promocionais -->
+      <div id="pacotes" class="mt-16">
+        <div class="text-center max-w-2xl mx-auto mb-8 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-[0.2em] text-brand-terracotta">Economize</span>
+          <h3 class="font-serif font-extrabold text-2xl sm:text-3xl text-brand-navy">Pacotes Promocionais</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-7 sm:gap-8 max-w-4xl mx-auto">
+        <article class="bg-white rounded-3xl border-2 border-brand-gold/60 p-6 sm:p-7 shadow-sm flex flex-col gap-4">
+          <span class="self-start px-3 py-1 rounded-full bg-brand-gold/20 text-brand-navy text-xs font-extrabold uppercase tracking-wider">Ganhe 1 marmita</span>
+          <div>
+            <h4 class="font-serif font-extrabold text-2xl text-brand-navy">Leve 7, Pague 6</h4>
+            <p class="text-sm text-slate-500 mt-1.5">Escolha 7 marmitas entre os sabores do cardápio e pague apenas 6. A de menor valor do pacote sai de graça.</p>
+          </div>
+          <button type="button" onclick="openPack(7,1)" class="w-full py-3.5 px-4 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaDark text-white font-bold text-sm shadow-md shadow-brand-terracotta/20 flex items-center justify-center gap-2 transition-colors mt-auto">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Montar meu pacote</span>
+          </button>
+        </article>
+        <article class="bg-white rounded-3xl border-2 border-brand-gold/60 p-6 sm:p-7 shadow-sm flex flex-col gap-4">
+          <span class="self-start px-3 py-1 rounded-full bg-brand-gold/20 text-brand-navy text-xs font-extrabold uppercase tracking-wider">Ganhe 2 marmitas</span>
+          <div>
+            <h4 class="font-serif font-extrabold text-2xl text-brand-navy">Leve 14, Pague 12</h4>
+            <p class="text-sm text-slate-500 mt-1.5">Escolha 14 marmitas entre os sabores do cardápio e pague apenas 12. As 2 de menor valor do pacote saem de graça.</p>
+          </div>
+          <button type="button" onclick="openPack(14,2)" class="w-full py-3.5 px-4 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaDark text-white font-bold text-sm shadow-md shadow-brand-terracotta/20 flex items-center justify-center gap-2 transition-colors mt-auto">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Montar meu pacote</span>
+          </button>
+        </article>
+        </div>
+      </div>
+
+      <!-- Montagem do pacote -->
+      <div id="pack-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-brand-navy/60">
+        <div class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
+          <div class="p-5 border-b border-brand-creamDark flex items-start justify-between gap-3">
+            <div>
+              <h4 id="pack-title" class="font-serif font-extrabold text-xl text-brand-navy"></h4>
+              <p id="pack-counter" class="text-sm font-semibold text-brand-terracotta mt-0.5"></p>
+            </div>
+            <button type="button" onclick="closePack()" aria-label="Fechar" class="text-slate-400 hover:text-brand-navy p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+          </div>
+          <div id="pack-list" class="p-5 space-y-2.5 overflow-y-auto"></div>
+          <div class="p-5 border-t border-brand-creamDark space-y-3">
+            <div class="text-sm text-brand-navy space-y-1">
+              <div class="flex justify-between"><span>Valor sem desconto</span><span id="pack-full"></span></div>
+              <div class="flex justify-between text-emerald-700"><span>Desconto</span><span id="pack-discount"></span></div>
+              <div class="flex justify-between font-extrabold text-base"><span>Total do pacote</span><span id="pack-total"></span></div>
+            </div>
+            <button type="button" id="pack-add" onclick="addPackToCart()" class="w-full py-3.5 px-4 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaDark text-white font-bold text-sm shadow-md shadow-brand-terracotta/20 flex items-center justify-center gap-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-cart-plus"></i>
+              <span>Adicionar pacote ao carrinho</span>
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -781,6 +838,80 @@
       updateCartUI();
     }
 
+    // ===== Pacotes promocionais =====
+    let pack = { size: 0, free: 0, qty: {} };
+    let packSeq = 1000;
+
+    function packCount() { return Object.values(pack.qty).reduce((a, b) => a + b, 0); }
+
+    function packPricing() {
+      const units = [];
+      MENU_ITEMS.forEach(m => { for (let i = 0; i < (pack.qty[m.id] || 0); i++) units.push(m.price); });
+      units.sort((a, b) => a - b);
+      const full = units.reduce((a, b) => a + b, 0);
+      const discount = units.slice(0, pack.free).reduce((a, b) => a + b, 0);
+      return { full, discount, total: full - discount, ready: units.length === pack.size };
+    }
+
+    function openPack(size, free) {
+      pack = { size, free, qty: {} };
+      document.getElementById('pack-title').textContent = `Pacote Leve ${size}, Pague ${size - free}`;
+      renderPack();
+      const m = document.getElementById('pack-modal');
+      m.classList.remove('hidden'); m.classList.add('flex');
+    }
+
+    function closePack() {
+      const m = document.getElementById('pack-modal');
+      m.classList.add('hidden'); m.classList.remove('flex');
+    }
+
+    function changePackQty(id, delta) {
+      if (delta > 0 && packCount() >= pack.size) return;
+      pack.qty[id] = Math.max(0, (pack.qty[id] || 0) + delta);
+      renderPack();
+    }
+
+    function renderPack() {
+      const btn = 'w-8 h-8 rounded-lg bg-white border border-brand-creamDark text-brand-navy hover:bg-brand-cream flex items-center justify-center text-xs';
+      document.getElementById('pack-list').innerHTML = MENU_ITEMS.map(m => `
+        <div class="flex items-center justify-between gap-3 bg-brand-cream/60 rounded-xl px-3.5 py-2.5">
+          <div class="min-w-0">
+            <p class="font-bold text-sm text-brand-navy truncate">${m.name}</p>
+            <p class="text-xs text-slate-500">${formatCurrency(m.price)}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" class="${btn}" aria-label="Diminuir" onclick="changePackQty(${m.id}, -1)"><i class="fa-solid fa-minus"></i></button>
+            <span class="w-6 text-center font-bold text-sm text-brand-navy">${pack.qty[m.id] || 0}</span>
+            <button type="button" class="${btn}" aria-label="Aumentar" onclick="changePackQty(${m.id}, 1)"><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </div>`).join('');
+      const pr = packPricing();
+      document.getElementById('pack-counter').textContent = `${packCount()} de ${pack.size} marmitas escolhidas`;
+      document.getElementById('pack-full').textContent = formatCurrency(pr.full);
+      document.getElementById('pack-discount').textContent = pr.ready ? '- ' + formatCurrency(pr.discount) : 'Escolha todas as marmitas';
+      document.getElementById('pack-total').textContent = formatCurrency(pr.total);
+      document.getElementById('pack-add').disabled = !pr.ready;
+    }
+
+    function addPackToCart() {
+      const pr = packPricing();
+      if (!pr.ready) return;
+      const detail = MENU_ITEMS.filter(m => pack.qty[m.id]).map(m => `${pack.qty[m.id]}x ${m.name}`).join(', ');
+      cart.push({
+        id: ++packSeq,
+        name: `Pacote Leve ${pack.size}, Pague ${pack.size - pack.free}`,
+        weight: `${pack.size} marmitas`,
+        price: pr.total,
+        quantity: 1,
+        detail
+      });
+      closePack();
+      updateCartUI();
+      animateCartBadge();
+      showToast('Pacote adicionado ao carrinho!');
+    }
+
     // Atualiza toda a interface do carrinho (Badge, lista e totais)
     function updateCartUI() {
       const badge = document.getElementById('cart-badge');
@@ -838,6 +969,7 @@
               </button>
             </div>
             <p class="text-xs text-slate-500 mb-2">${item.weight} • ${formatCurrency(item.price)} un.</p>
+            ${item.detail ? `<p class="text-[11px] text-slate-500 -mt-1 mb-2 leading-snug">${item.detail}</p>` : ''}
             
             <div class="flex items-center justify-between">
               <div class="flex items-center bg-brand-cream rounded-lg border border-brand-creamDark">
@@ -923,6 +1055,7 @@
 
       cart.forEach(item => {
         message += `• *${item.quantity}x ${item.name}* (${item.weight}) — ${formatCurrency(item.price * item.quantity)}\n`;
+        if (item.detail) message += `   ${item.detail}\n`;
       });
 
       message += `\n------------------------------\n`;
