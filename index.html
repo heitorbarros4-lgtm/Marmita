@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guirro &amp; Barros | Comidas Congeladas Artesanais</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  
+  <!-- Google Fonts: Fraunces (Serifada artesanal) & Plus Jakarta Sans (Leitura limpa) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Configuração personalizada de cores e fontes do Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#1E3D52',       // Azul petróleo/marinho do logo
+              navyDark: '#142A39',
+              terracotta: '#C35828', // Laranja terracota/ferrugem do logo
+              terracottaDark: '#A3451B',
+              gold: '#D89236',       // Dourado/mostarda quente do logo
+              cream: '#FAF7F2',      // Fundo off-white/creme suave
+              creamDark: '#F0EAE0'
+            }
+          },
+          fontFamily: {
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Ajustes finos de barra de rolagem e transições */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF7F2;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #1E3D52;
+    }
+  </style>
+</head>
+<body class="bg-brand-cream text-slate-800 font-sans antialiased selection:bg-brand-terracotta selection:text-white">
+
+  <!-- ==================== NOTIFICAÇÃO TOAST (Substitui alert) ==================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== CABEÇALHO FIXO (NAVBAR) ==================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-brand-creamDark shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Botão MENU (Esquerda) -->
+      <div class="flex items-center">
+        <button 
+          id="open-menu-btn"
+          aria-label="Abrir Menu"
+          class="flex items-center gap-2.5 p-2.5 rounded-xl text-brand-navy hover:bg-brand-cream transition-colors focus:outline-none focus:ring-2 focus:ring-brand-terracotta"
+        >
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+          </svg>
+          <span class="font-semibold text-sm tracking-wide uppercase hidden sm:inline">Menu</span>
+        </button>
+      </div>
+
+      <!-- LOGO CENTRALIZADA (Tenta carregar o arquivo local; se não encontrar, renderiza o emblema vetorial fiel) -->
+      <a href="#inicio" class="flex items-center justify-center group focus:outline-none">
+        <!-- Imagem real do logo (se estiver na mesma pasta) -->
+        <img 
+          src="Logo da Empresa Sem Fundo.png" 
+          alt="Guirro & Barros - Comidas Congeladas" 
+          class="h-14 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+          onerror="this.style.display='none'; document.getElementById('logo-fallback').classList.remove('hidden'); document.getElementById('logo-fallback').classList.add('flex');"
+        />
+
+        <!-- Fallback Vetorial Fiel à Identidade Visual (Exibido caso a imagem local não carregue no navegador) -->
+        <div id="logo-fallback" class="hidden items-center gap-2.5">
+          <div class="relative w-11 h-11 rounded-2xl bg-brand-cream border-2 border-brand-navy/15 flex items-center justify-center shadow-inner">
+            <!-- Detalhe de chama/chapéu chef estilizado -->
+            <span class="font-serif font-extrabold text-2xl tracking-tighter leading-none">
+              <span class="text-brand-navy">G</span><span class="text-brand-terracotta">B</span>
+            </span>
+            <span class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-brand-gold flex items-center justify-center text-[9px] text-white shadow">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+            </span>
+          </div>
+          <div class="flex flex-col text-left">
+            <span class="font-serif font-bold text-base sm:text-xl leading-none tracking-tight text-brand-navy">
+              GUIRRO <span class="text-brand-terracotta">&amp;</span> BARROS
+            </span>
+            <span class="text-[10px] sm:text-[11px] font-bold tracking-[0.18em] text-brand-terracotta uppercase mt-1">
+              Comidas Congeladas
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Botão CARRINHO (Direita) -->
+      <div class="flex items-center">
+        <button 
+          id="open-cart-btn"
+          aria-label="Abrir Carrinho"
+          class="relative flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-brand-navy text-white hover:bg-brand-navyDark transition-all shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-brand-gold"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+          </svg>
+          <span class="font-semibold text-sm hidden sm:inline">Carrinho</span>
+          <span 
+            id="cart-badge" 
+            class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 text-xs font-bold bg-brand-terracotta text-white rounded-full shadow-sm transition-transform duration-200"
+          >
+            0
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==================== GAVETA DO MENU LATERAL (DRAWER) ==================== -->
+  <div id="menu-backdrop" class="fixed inset-0 bg-brand-navyDark/50 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300"></div>
+  <aside id="menu-drawer" class="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 shadow-2xl transform -translate-x-full transition-transform duration-300 flex flex-col justify-between">
+    <div>
+      <!-- Cabeçalho do Menu -->
+      <div class="p-6 border-b border-brand-creamDark flex items-center justify-between bg-brand-cream">
+        <div>
+          <p class="font-serif font-bold text-lg text-brand-navy">Guirro &amp; Barros</p>
+          <p class="text-xs font-semibold text-brand-terracotta uppercase tracking-wider">Navegação</p>
+        </div>
+        <button id="close-menu-btn" aria-label="Fechar Menu" class="p-2 rounded-xl text-slate-500 hover:text-brand-navy hover:bg-white transition-colors">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Links de Navegação -->
+      <nav class="p-4 space-y-1.5">
+        <a href="#inicio" class="menu-link flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-brand-navy font-semibold hover:bg-brand-cream transition-colors">
+          <i class="fa-solid fa-house w-5 text-brand-terracotta"></i>
+          <span>Início</span>
+        </a>
+        <a href="#cardapio" class="menu-link flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-brand-navy font-semibold hover:bg-brand-cream transition-colors">
+          <i class="fa-solid fa-utensils w-5 text-brand-terracotta"></i>
+          <span>Cardápio Semanal</span>
+        </a>
+        <a href="#como-funciona" class="menu-link flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-brand-navy font-semibold hover:bg-brand-cream transition-colors">
+          <i class="fa-solid fa-snowflake w-5 text-brand-terracotta"></i>
+          <span>Como Funciona</span>
+        </a>
+        <a href="#contato" class="menu-link flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-brand-navy font-semibold hover:bg-brand-cream transition-colors">
+          <i class="fa-brands fa-whatsapp w-5 text-brand-terracotta"></i>
+          <span>Contato &amp; Entregas</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Rodapé do Drawer -->
+    <div class="p-6 bg-brand-cream border-t border-brand-creamDark space-y-2.5">
+      <div class="flex items-center gap-3 text-sm text-brand-navy">
+        <i class="fa-brands fa-whatsapp text-emerald-600 w-4 text-center"></i>
+        <a href="https://wa.me/5515997659014" target="_blank" rel="noopener noreferrer" class="font-semibold hover:text-brand-terracotta transition-colors">(15) 99765-9014</a>
+      </div>
+      <div class="flex items-center gap-3 text-sm text-brand-navy">
+        <i class="fa-solid fa-clock text-brand-gold w-4 text-center"></i>
+        <span class="font-medium">Seg a Sáb • 09h às 19h</span>
+      </div>
+      <div class="flex items-start gap-3 text-xs text-brand-navy">
+        <i class="fa-solid fa-location-dot text-brand-terracotta w-4 text-center mt-0.5"></i>
+        <span class="font-medium leading-snug">Atendimento em Botucatu/SP (dias úteis) e Itapetininga/SP (finais de semana)</span>
+      </div>
+      <p class="text-xs text-slate-500 leading-relaxed pt-1">
+        Marmitas preparadas artesanalmente com ingredientes selecionados e ultracongeladas para preservar o sabor de comida feita na hora.
+      </p>
+    </div>
+  </aside>
+
+  <!-- ==================== GAVETA DO CARRINHO DE COMPRAS (CART DRAWER) ==================== -->
+  <div id="cart-backdrop" class="fixed inset-0 bg-brand-navyDark/50 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300"></div>
+  <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[430px] max-w-full bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    
+    <!-- Cabeçalho do Carrinho -->
+    <div class="p-5 sm:p-6 bg-brand-navy text-white flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-brand-gold">
+          <i class="fa-solid fa-bag-shopping text-lg"></i>
+        </div>
+        <div>
+          <h2 class="font-serif font-bold text-lg leading-tight">Seu Carrinho</h2>
+          <p id="cart-subtitle" class="text-xs text-slate-300">0 marmitas selecionadas</p>
+        </div>
+      </div>
+      <button id="close-cart-btn" aria-label="Fechar Carrinho" class="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Lista de Itens do Carrinho -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 space-y-4 bg-brand-cream/50">
+      <!-- Preenchido dinamicamente via JavaScript -->
+    </div>
+
+    <!-- Rodapé e Fechamento do Carrinho -->
+    <div id="cart-footer" class="p-5 sm:p-6 bg-white border-t border-brand-creamDark space-y-4 hidden">
+      
+      <!-- Forma de recebimento: somente entrega -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-brand-navy mb-2">Forma de Recebimento</label>
+        <div class="py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 border-brand-terracotta bg-brand-terracotta/10 text-brand-terracotta">
+          <i class="fa-solid fa-motorcycle"></i>
+          <span>Entrega (R$ 7,00)</span>
+        </div>
+        <p class="mt-2 text-[11px] text-brand-navy bg-brand-cream px-3 py-2 rounded-lg border border-brand-creamDark">
+          <i class="fa-solid fa-location-dot text-brand-terracotta mr-1"></i>
+          <strong>Atendimento:</strong> Botucatu/SP em dias úteis e Itapetininga/SP aos finais de semana.
+        </p>
+      </div>
+
+      <!-- Agendamento da entrega -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-brand-navy mb-2">Agende sua Entrega</label>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label for="delivery-date" class="sr-only">Dia da entrega</label>
+            <select id="delivery-date" class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 bg-white text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-terracotta"></select>
+          </div>
+          <div>
+            <label for="delivery-time" class="sr-only">Horário da entrega</label>
+            <select id="delivery-time" class="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 bg-white text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-terracotta"></select>
+          </div>
+        </div>
+        <p id="schedule-error" class="hidden mt-2 text-[11px] font-semibold text-red-600">Escolha o dia e o horário da entrega para continuar.</p>
+      </div>
+
+      <!-- Resumo de Valores -->
+      <div class="space-y-1.5 pt-2 border-t border-slate-100 text-sm">
+        <div class="flex justify-between text-slate-600">
+          <span>Subtotal</span>
+          <span id="cart-subtotal" class="font-semibold">R$ 0,00</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>Taxa de entrega</span>
+          <span id="cart-delivery-fee" class="font-semibold">R$ 7,00</span>
+        </div>
+        <div class="flex justify-between text-lg font-bold text-brand-navy pt-2 border-t border-dashed border-slate-200">
+          <span>Total do Pedido</span>
+          <span id="cart-total" class="text-brand-terracotta">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Nota de pagamento via PIX -->
+      <div class="flex items-start gap-3 text-[11px] leading-relaxed text-brand-navy bg-brand-gold/10 border border-brand-gold/40 rounded-xl px-3.5 py-3">
+        <i class="fa-brands fa-pix text-brand-terracotta text-base mt-0.5"></i>
+        <p>
+          <strong>Pagamento somente via PIX</strong>, com envio antecipado do comprovante.<br>
+          Chave PIX: <strong class="select-all">XXX-XXX-XXX-XX</strong>
+        </p>
+      </div>
+
+      <!-- Botão Finalizar no WhatsApp -->
+      <button 
+        type="button"
+        onclick="checkoutWhatsApp()"
+        class="w-full py-3.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2.5 transition-all active:scale-[0.99]"
+      >
+        <i class="fa-brands fa-whatsapp text-xl"></i>
+        <span>Finalizar Pedido (WhatsApp)</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ==================== SEÇÃO PRINCIPAL (HERO BANNER) ==================== -->
+  <section id="inicio" class="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-24">
+    <!-- Elementos decorativos sutis de fundo -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-brand-gold/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-brand-terracotta/10 blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        
+        <!-- Texto de Boas-vindas -->
+        <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-brand-gold/40 shadow-xs text-xs sm:text-sm font-semibold text-brand-navy">
+            <span class="w-2 h-2 rounded-full bg-brand-terracotta animate-pulse"></span>
+            <span>Botucatu/SP e Itapetininga/SP • Prontas em 6 minutos</span>
+          </div>
+
+          <h1 class="font-serif font-extrabold text-3xl sm:text-5xl lg:text-[3.35rem] text-brand-navy leading-[1.15] tracking-tight">
+            Comida caseira feita com carinho, <span class="text-brand-terracotta">congelada no ponto certo.</span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            Na <strong class="text-brand-navy font-semibold">Guirro &amp; Barros</strong>, em Botucatu/SP (dias úteis) e Itapetininga/SP (finais de semana), preparamos receitas tradicionais com temperos naturais e ingredientes frescos para facilitar a sua rotina sem abrir mão do sabor de casa.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a 
+              href="#cardapio" 
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-brand-terracotta hover:bg-brand-terracottaDark text-white font-bold text-base shadow-lg shadow-brand-terracotta/25 flex items-center justify-center gap-3 transition-all hover:-translate-y-0.5"
+            >
+              <span>Ver Cardápio</span>
+              <i class="fa-solid fa-arrow-down"></i>
+            </a>
+            <a 
+              href="#como-funciona" 
+              class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-brand-creamDark/60 text-brand-navy border border-brand-navy/15 font-bold text-base flex items-center justify-center gap-2.5 transition-all"
+            >
+              <i class="fa-solid fa-snowflake text-brand-gold"></i>
+              <span>Como funciona</span>
+            </a>
+          </div>
+
+          <!-- Selos de confiança -->
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-brand-creamDark max-w-lg mx-auto lg:mx-0">
+            <div>
+              <p class="font-serif font-bold text-xl sm:text-2xl text-brand-navy">100%</p>
+              <p class="text-xs text-slate-500 font-medium">Tempero Natural</p>
+            </div>
+            <div>
+              <p class="font-serif font-bold text-xl sm:text-2xl text-brand-terracotta">6 min</p>
+              <p class="text-xs text-slate-500 font-medium">No Micro-ondas</p>
+            </div>
+            <div>
+              <p class="font-serif font-bold text-xl sm:text-2xl text-brand-gold">90 dias</p>
+              <p class="text-xs text-slate-500 font-medium">Validade no Freezer</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Imagem Destaque Hero -->
+        <div class="lg:col-span-5">
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white aspect-[4/3] sm:aspect-square lg:aspect-[4/4]">
+              <img 
+                src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80" 
+                alt="Refeição caseira artesanal Guirro & Barros" 
+                class="w-full h-full object-cover"
+                onerror="this.src='https://placehold.co/800x800/1E3D52/FAF7F2?text=Guirro+%26+Barros+Marmitas'"
+              />
+            </div>
+
+            <!-- Card flutuante decorativo -->
+            <div class="absolute -bottom-5 left-4 right-4 sm:left-6 sm:right-auto bg-white rounded-2xl p-4 shadow-xl border border-brand-creamDark flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-xl bg-brand-gold/15 text-brand-terracotta flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-fire-burner text-xl"></i>
+              </div>
+              <div>
+                <p class="font-serif font-bold text-sm text-brand-navy">Receitas Artesanais</p>
+                <p class="text-xs text-slate-500">Sem conservantes químicos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SEÇÃO DO CARDÁPIO (5 OPÇÕES DE MARMITAS) ==================== -->
+  <section id="cardapio" class="py-16 sm:py-24 bg-white border-y border-brand-creamDark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Título da Seção -->
+      <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
+        <span class="text-xs font-bold uppercase tracking-[0.2em] text-brand-terracotta">Nosso Cardápio</span>
+        <h2 class="font-serif font-extrabold text-3xl sm:text-4xl text-brand-navy">
+          Escolha suas marmitas favoritas
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base">
+          Porções equilibradas, embaladas individualmente e prontas para ir direto do freezer ao micro-ondas.
+        </p>
+      </div>
+
+      <!-- Grid de Cards das Marmitas (Renderizado via JS para interatividade total) -->
+      <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-8">
+        <!-- Os 5 cards serão inseridos aqui pelo script -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== SEÇÃO COMO FUNCIONA (3 PASSOS) ==================== -->
+  <section id="como-funciona" class="py-16 sm:py-24 bg-brand-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <span class="text-xs font-bold uppercase tracking-[0.2em] text-brand-terracotta">Praticidade no dia a dia</span>
+        <h2 class="font-serif font-extrabold text-3xl sm:text-4xl text-brand-navy">
+          Como Funciona
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base">
+          Do nosso fogão para o seu freezer em três passos simples.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Passo 1 -->
+        <div class="bg-white rounded-3xl p-8 border border-brand-creamDark shadow-sm hover:shadow-md transition-shadow relative">
+          <div class="w-14 h-14 rounded-2xl bg-brand-navy text-white flex items-center justify-center text-2xl mb-6 shadow-md shadow-brand-navy/20">
+            <i class="fa-solid fa-basket-shopping"></i>
+          </div>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-brand-gold">Passo 01</span>
+          <h3 class="font-serif font-bold text-xl text-brand-navy mt-1 mb-3">Escolha suas marmitas</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Selecione os sabores que você mais gosta no nosso cardápio, defina as quantidades e finalize o pedido pelo WhatsApp em segundos.
+          </p>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="bg-white rounded-3xl p-8 border border-brand-creamDark shadow-sm hover:shadow-md transition-shadow relative">
+          <div class="w-14 h-14 rounded-2xl bg-brand-terracotta text-white flex items-center justify-center text-2xl mb-6 shadow-md shadow-brand-terracotta/20">
+            <i class="fa-solid fa-snowflake"></i>
+          </div>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-brand-gold">Passo 02</span>
+          <h3 class="font-serif font-bold text-xl text-brand-navy mt-1 mb-3">Receba em casa</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Entregamos em <strong class="text-brand-navy">Botucatu/SP nos dias úteis</strong> e em <strong class="text-brand-navy">Itapetininga/SP aos finais de semana</strong>.
+          </p>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="bg-white rounded-3xl p-8 border border-brand-creamDark shadow-sm hover:shadow-md transition-shadow relative">
+          <div class="w-14 h-14 rounded-2xl bg-brand-gold text-white flex items-center justify-center text-2xl mb-6 shadow-md shadow-brand-gold/25">
+            <i class="fa-solid fa-bowl-rice"></i>
+          </div>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-brand-terracotta">Passo 03</span>
+          <h3 class="font-serif font-bold text-xl text-brand-navy mt-1 mb-3">Aqueça em minutos</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            Retire do freezer, entreabra a tampa e aqueça por cerca de 5 a 7 minutos no micro-ondas. Prontinho, com aroma e sabor de comida fresca!
+          </p>
+        </div>
+      </div>
+
+      <!-- Faixa de Destaque de Atendimento -->
+      <div class="mt-10 bg-white rounded-3xl p-6 sm:p-8 border border-brand-creamDark shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-brand-navy/10 text-brand-navy flex items-center justify-center text-xl shrink-0 mt-0.5">
+            <i class="fa-solid fa-map-location-dot"></i>
+          </div>
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider text-brand-terracotta">Onde Atendemos</span>
+            <h3 class="font-serif font-bold text-lg sm:text-xl text-brand-navy mt-0.5">
+              Botucatu/SP em dias úteis &bull; Itapetininga/SP aos finais de semana
+            </h3>
+            <p class="text-sm text-slate-500 mt-1">
+              Receba seu pedido no conforto da sua casa. Atendemos por entrega, sem retirada no local.
+            </p>
+            <p class="text-sm text-brand-navy mt-2 flex items-start gap-2">
+              <i class="fa-brands fa-pix text-brand-terracotta mt-0.5"></i>
+              <span><strong>Pagamento somente via PIX</strong> com envio antecipado do comprovante. Chave: <strong class="select-all">XXX-XXX-XXX-XX</strong></span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== RODAPÉ (FOOTER) ==================== -->
+  <footer id="contato" class="bg-brand-navy text-white pt-16 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-12 border-b border-white/10">
+        
+        <!-- Coluna 1: Sobre a Marca -->
+        <div class="space-y-4">
+          <div class="inline-block bg-white px-4 py-2.5 rounded-2xl">
+            <span class="font-serif font-extrabold text-xl text-brand-navy">
+              GUIRRO <span class="text-brand-terracotta">&amp;</span> BARROS
+            </span>
+            <span class="block text-[10px] font-bold tracking-[0.18em] text-brand-terracotta uppercase">
+              Comidas Congeladas
+            </span>
+          </div>
+          <p class="text-slate-300 text-sm leading-relaxed">
+            Culinária caseira artesanal feita com dedicação para nutrir sua semana com praticidade, economia e muito sabor.
+          </p>
+        </div>
+
+        <!-- Coluna 2: Links Rápidos -->
+        <div class="space-y-4">
+          <h4 class="font-serif font-bold text-lg text-brand-gold">Acesso Rápido</h4>
+          <ul class="space-y-2.5 text-sm text-slate-300">
+            <li><a href="#inicio" class="hover:text-white transition-colors">Início</a></li>
+            <li><a href="#cardapio" class="hover:text-white transition-colors">Cardápio Completo</a></li>
+            <li><a href="#como-funciona" class="hover:text-white transition-colors">Como Funciona</a></li>
+            <li><button onclick="openCart()" class="hover:text-white transition-colors">Abrir Meu Carrinho</button></li>
+          </ul>
+        </div>
+
+        <!-- Coluna 3: Atendimento & Contato -->
+        <div class="space-y-4">
+          <h4 class="font-serif font-bold text-lg text-brand-gold">Atendimento &amp; Endereço</h4>
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li class="flex items-center gap-3">
+              <i class="fa-brands fa-whatsapp text-brand-gold text-lg w-5 text-center"></i>
+              <a href="https://wa.me/5515997659014" target="_blank" rel="noopener noreferrer" class="hover:text-white underline decoration-brand-gold/50 underline-offset-4 transition-colors">(15) 99765-9014</a>
+            </li>
+            <li class="flex items-center gap-3">
+              <i class="fa-solid fa-clock text-brand-gold w-5 text-center"></i>
+              <span>Segunda a Sábado: 09h às 19h</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fa-solid fa-location-dot text-brand-gold w-5 text-center mt-1"></i>
+              <span>Atendimento em Botucatu/SP (dias úteis) e Itapetininga/SP (finais de semana)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fa-brands fa-pix text-brand-gold text-lg w-5 text-center mt-0.5"></i>
+              <span>Pagamento somente via PIX, com envio antecipado do comprovante.<br>Chave: <strong class="text-white select-all">XXX-XXX-XXX-XX</strong></span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p>&copy; 2026 Guirro &amp; Barros - Comidas Congeladas. Todos os direitos reservados.</p>
+        <p>Botucatu/SP &amp; Itapetininga/SP • Feito com <i class="fa-solid fa-heart text-brand-terracotta"></i> para facilitar sua rotina.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT (CARDÁPIO, CARRINHO E INTERAÇÕES) ==================== -->
+  <script>
+    // 1. Base de dados das 5 opções de marmitas solicitadas
+    const MENU_ITEMS = [
+      {
+        id: 1,
+        name: "Strogonoff",
+        subtitle: "Clássico Cremoso",
+        weight: "380g",
+        price: 22.90,
+        badge: "Mais Pedido",
+        description: "Cubos macios de frango ou carne ao molho cremoso artesanal com champignon, acompanhados de arroz branco soltinho e batata palha crocante (embalada à parte)."
+      },
+      {
+        id: 2,
+        name: "Carne Moída",
+        subtitle: "Temperinho de Casa",
+        weight: "400g",
+        price: 19.90,
+        badge: "Sabor Caseiro",
+        description: "Carne moída refogada lentamente com alho, cebola e ervas frescas, servida com arroz branco, feijão carioca temperado e purê de batatas cremoso."
+      },
+      {
+        id: 3,
+        name: "Filé de Frango",
+        subtitle: "Leve & Equilibrado",
+        weight: "380g",
+        price: 20.90,
+        badge: "Linha Leve",
+        description: "Filé de peito de frango grelhado suculento com toque de limão e ervas, acompanhado de arroz integral, feijão caseiro e legumes salteados no azeite."
+      },
+      {
+        id: 4,
+        name: "Filé de Tilápia",
+        subtitle: "Especial do Chef",
+        weight: "360g",
+        price: 26.90,
+        badge: "Especial",
+        description: "Filé de tilápia grelhado ao molho suave de ervas finas e manteiga, acompanhado de arroz soltinho e mix colorido de legumes no vapor."
+      },
+      {
+        id: 5,
+        name: "Rondelli de Presunto e Queijo",
+        subtitle: "Massa Artesanal",
+        weight: "400g",
+        price: 21.90,
+        badge: "Massa Fresca",
+        description: "Massa artesanal recheada com presunto magro e queijo muçarela derretido, coberta com nosso molho sugo caseiro de tomates maduros e manjericão."
+      }
+    ];
+
+    // Estado da aplicação
+    let cardQuantities = {}; // Quantidade selecionada em cada card antes de adicionar
+    let cart = [];           // Itens dentro do carrinho
+    const deliveryMode = 'entrega'; // somente entrega (R$ 7,00)
+    const DELIVERY_FEE = 7.00;
+    const WHATSAPP_NUMBER = "5515997659014"; // Número oficial de pedidos (15) 99765-9014
+
+    // Inicializa quantidades padrão dos cards em 1
+    MENU_ITEMS.forEach(item => {
+      cardQuantities[item.id] = 1;
+    });
+
+    // Formata valores para Real Brasileiro (R$)
+    function formatCurrency(value) {
+      return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // Exibe notificação visual elegante (Toast)
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto bg-brand-navy text-white px-4 py-3 rounded-2xl shadow-xl border border-white/10 flex items-center gap-3 text-sm font-medium transform translate-y-4 opacity-0 transition-all duration-300';
+      toast.innerHTML = `
+        <span class="w-6 h-6 rounded-full bg-brand-terracotta flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-check"></i>
+        </span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    // Renderiza os 5 cards do cardápio
+    function renderMenu() {
+      const grid = document.getElementById('menu-grid');
+      grid.innerHTML = MENU_ITEMS.map(item => `
+        <article class="bg-brand-cream/40 rounded-3xl border border-brand-creamDark overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+          <div>
+            <!-- Foto do Prato -->
+            <div class="relative h-56 overflow-hidden bg-brand-creamDark">
+              <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-brand-cream border-2 border-dashed border-brand-navy/25 text-brand-navy/60" role="img" aria-label="Foto pendente de ${item.name}">
+                <i class="fa-solid fa-camera text-3xl"></i>
+                <span class="font-serif font-bold text-lg">Foto Pendente</span>
+              </div>
+              <!-- Selo Superior Esquerdo -->
+              <span class="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-brand-navy/90 backdrop-blur-xs text-white text-xs font-bold tracking-wide shadow">
+                ${item.badge}
+              </span>
+              <!-- Peso Superior Direito -->
+              <span class="absolute top-3.5 right-3.5 px-3 py-1 rounded-full bg-white/95 text-brand-navy text-xs font-extrabold shadow">
+                <i class="fa-solid fa-weight-hanging text-brand-terracotta mr-1"></i>${item.weight}
+              </span>
+            </div>
+
+            <!-- Conteúdo Textual -->
+            <div class="p-6 pb-4">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-wider text-brand-terracotta">${item.subtitle}</span>
+                  <h3 class="font-serif font-bold text-xl text-brand-navy leading-snug">${item.name}</h3>
+                </div>
+              </div>
+              <p class="text-slate-600 text-sm leading-relaxed">
+                ${item.description}
+              </p>
+            </div>
+          </div>
+
+          <!-- Preço, Seletor de Quantidade e Botão Adicionar -->
+          <div class="p-6 pt-3 border-t border-brand-creamDark/80 bg-white mt-2 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 block">Valor unitário</span>
+                <span class="font-serif font-extrabold text-2xl text-brand-navy">${formatCurrency(item.price)}</span>
+              </div>
+
+              <!-- Controle de Quantidade -->
+              <div class="flex items-center bg-brand-cream rounded-xl p-1 border border-brand-creamDark">
+                <button 
+                  type="button"
+                  onclick="updateCardQty(${item.id}, -1)"
+                  aria-label="Diminuir quantidade"
+                  class="w-9 h-9 rounded-lg flex items-center justify-center text-brand-navy hover:bg-white font-bold transition-colors"
+                >
+                  <i class="fa-solid fa-minus text-xs"></i>
+                </button>
+                <span id="card-qty-${item.id}" class="w-9 text-center font-bold text-brand-navy text-sm">
+                  ${cardQuantities[item.id]}
+                </span>
+                <button 
+                  type="button"
+                  onclick="updateCardQty(${item.id}, 1)"
+                  aria-label="Aumentar quantidade"
+                  class="w-9 h-9 rounded-lg flex items-center justify-center text-brand-navy hover:bg-white font-bold transition-colors"
+                >
+                  <i class="fa-solid fa-plus text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="button"
+              onclick="addToCart(${item.id})"
+              class="w-full py-3.5 px-4 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaDark text-white font-bold text-sm shadow-md shadow-brand-terracotta/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            >
+              <i class="fa-solid fa-cart-plus"></i>
+              <span>Adicionar ao Carrinho</span>
+            </button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Atualiza seletor de quantidade no card
+    function updateCardQty(itemId, delta) {
+      const current = cardQuantities[itemId] || 1;
+      const next = Math.max(1, current + delta);
+      cardQuantities[itemId] = next;
+      const qtyEl = document.getElementById(`card-qty-${itemId}`);
+      if (qtyEl) qtyEl.textContent = next;
+    }
+
+    // Adiciona item ao carrinho
+    function addToCart(itemId) {
+      const product = MENU_ITEMS.find(p => p.id === itemId);
+      const qtyToAdd = cardQuantities[itemId] || 1;
+
+      if (!product) return;
+
+      const existing = cart.find(c => c.id === itemId);
+      if (existing) {
+        existing.quantity += qtyToAdd;
+      } else {
+        cart.push({
+          ...product,
+          quantity: qtyToAdd
+        });
+      }
+
+      // Reseta contador do card para 1 após adicionar
+      cardQuantities[itemId] = 1;
+      const qtyEl = document.getElementById(`card-qty-${itemId}`);
+      if (qtyEl) qtyEl.textContent = 1;
+
+      updateCartUI();
+      animateCartBadge();
+      showToast(`${qtyToAdd}x ${product.name} adicionado ao carrinho!`);
+    }
+
+    // Animação no badge do carrinho
+    function animateCartBadge() {
+      const badge = document.getElementById('cart-badge');
+      badge.classList.add('scale-125', 'bg-brand-gold');
+      setTimeout(() => {
+        badge.classList.remove('scale-125', 'bg-brand-gold');
+      }, 250);
+    }
+
+    // Altera quantidade dentro do carrinho
+    function changeCartItemQty(itemId, delta) {
+      const index = cart.findIndex(c => c.id === itemId);
+      if (index === -1) return;
+
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      updateCartUI();
+    }
+
+    // Remove item completamente do carrinho
+    function removeCartItem(itemId) {
+      cart = cart.filter(c => c.id !== itemId);
+      updateCartUI();
+    }
+
+    // Atualiza toda a interface do carrinho (Badge, lista e totais)
+    function updateCartUI() {
+      const badge = document.getElementById('cart-badge');
+      const subtitle = document.getElementById('cart-subtitle');
+      const container = document.getElementById('cart-items-container');
+      const footer = document.getElementById('cart-footer');
+      const subtotalEl = document.getElementById('cart-subtotal');
+      const deliveryFeeEl = document.getElementById('cart-delivery-fee');
+      const totalEl = document.getElementById('cart-total');
+
+      const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      badge.textContent = totalItems;
+      subtitle.textContent = `${totalItems} ${totalItems === 1 ? 'marmita selecionada' : 'marmitas selecionadas'}`;
+
+      if (cart.length === 0) {
+        footer.classList.add('hidden');
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center py-12 px-4">
+            <div class="w-20 h-20 rounded-full bg-brand-creamDark flex items-center justify-center text-brand-navy/40 text-3xl mb-4">
+              <i class="fa-solid fa-utensils"></i>
+            </div>
+            <h3 class="font-serif font-bold text-lg text-brand-navy mb-1">Seu carrinho está vazio</h3>
+            <p class="text-sm text-slate-500 max-w-xs mb-6">
+              Explore nossas opções artesanais e monte seu kit de marmitas congeladas.
+            </p>
+            <button 
+              type="button"
+              onclick="closeCart(); document.getElementById('cardapio').scrollIntoView({behavior: 'smooth'});"
+              class="px-6 py-3 rounded-xl bg-brand-terracotta text-white font-bold text-sm hover:bg-brand-terracottaDark transition-colors"
+            >
+              Ver Cardápio
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      footer.classList.remove('hidden');
+
+      container.innerHTML = cart.map(item => `
+        <div class="bg-white p-3.5 rounded-2xl border border-brand-creamDark shadow-xs flex gap-3.5 items-center">
+          <div class="w-16 h-16 rounded-xl shrink-0 bg-brand-cream border border-dashed border-brand-navy/25 text-brand-navy/50 flex items-center justify-center text-lg" role="img" aria-label="Foto pendente">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-serif font-bold text-sm text-brand-navy truncate">${item.name}</h4>
+              <button 
+                type="button"
+                onclick="removeCartItem(${item.id})"
+                aria-label="Remover item"
+                class="text-slate-400 hover:text-red-500 transition-colors p-1"
+              >
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">${item.weight} • ${formatCurrency(item.price)} un.</p>
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center bg-brand-cream rounded-lg border border-brand-creamDark">
+                <button 
+                  type="button"
+                  onclick="changeCartItemQty(${item.id}, -1)"
+                  class="w-7 h-7 flex items-center justify-center text-brand-navy hover:bg-white rounded-l-lg text-xs"
+                >
+                  <i class="fa-solid fa-minus"></i>
+                </button>
+                <span class="w-7 text-center font-bold text-xs text-brand-navy">${item.quantity}</span>
+                <button 
+                  type="button"
+                  onclick="changeCartItemQty(${item.id}, 1)"
+                  class="w-7 h-7 flex items-center justify-center text-brand-navy hover:bg-white rounded-r-lg text-xs"
+                >
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <span class="font-bold text-sm text-brand-terracotta">
+                ${formatCurrency(item.price * item.quantity)}
+              </span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      const currentDeliveryFee = deliveryMode === 'entrega' ? DELIVERY_FEE : 0;
+      const total = subtotal + currentDeliveryFee;
+
+      subtotalEl.textContent = formatCurrency(subtotal);
+      deliveryFeeEl.textContent = currentDeliveryFee === 0 ? 'Grátis' : formatCurrency(currentDeliveryFee);
+      totalEl.textContent = formatCurrency(total);
+    }
+
+    // Agendamento: dias (próximos 14, a partir de amanhã) e horários (09h às 20h)
+    function initSchedule() {
+      const dateSel = document.getElementById('delivery-date');
+      const timeSel = document.getElementById('delivery-time');
+      if (!dateSel || !timeSel) return;
+      const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      dateSel.innerHTML = '<option value="">Escolha o dia</option>';
+      for (let i = 1; i <= 14; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const fimDeSemana = d.getDay() === 0 || d.getDay() === 6;
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const cidade = fimDeSemana ? 'Itapetininga' : 'Botucatu';
+        const label = `${dias[d.getDay()]}, ${dd}/${mm} - ${cidade}`;
+        dateSel.insertAdjacentHTML('beforeend', `<option value="${label}">${label}</option>`);
+      }
+      timeSel.innerHTML = '<option value="">Escolha o horário</option>';
+      for (let h = 9; h < 20; h++) {
+        const label = `${String(h).padStart(2, '0')}h às ${String(h + 1).padStart(2, '0')}h`;
+        timeSel.insertAdjacentHTML('beforeend', `<option value="${label}">${label}</option>`);
+      }
+      [dateSel, timeSel].forEach(el => el.addEventListener('change', () => {
+        document.getElementById('schedule-error').classList.add('hidden');
+      }));
+    }
+    initSchedule();
+
+    // Gera mensagem formatada e abre o WhatsApp
+    function checkoutWhatsApp() {
+      if (cart.length === 0) return;
+
+      const deliveryDate = document.getElementById('delivery-date').value;
+      const deliveryTime = document.getElementById('delivery-time').value;
+      if (!deliveryDate || !deliveryTime) {
+        document.getElementById('schedule-error').classList.remove('hidden');
+        document.getElementById(deliveryDate ? 'delivery-time' : 'delivery-date').focus();
+        return;
+      }
+
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      const fee = deliveryMode === 'entrega' ? DELIVERY_FEE : 0;
+      const total = subtotal + fee;
+
+      let message = `Olá, *Guirro & Barros - Comidas Congeladas*! 🍲❄️\n`;
+      message += `Gostaria de fazer o seguinte pedido:\n\n`;
+
+      cart.forEach(item => {
+        message += `• *${item.quantity}x ${item.name}* (${item.weight}) — ${formatCurrency(item.price * item.quantity)}\n`;
+      });
+
+      message += `\n------------------------------\n`;
+      message += `*Subtotal:* ${formatCurrency(subtotal)}\n`;
+      message += `*Modalidade:* Entrega (+ ${formatCurrency(fee)})\n`;
+      message += `*Dia da entrega:* ${deliveryDate}\n`;
+      message += `*Horário:* ${deliveryTime}\n`;
+      message += `*TOTAL DO PEDIDO:* ${formatCurrency(total)}\n`;
+      message += `------------------------------\n\n`;
+      message += `*Pagamento:* somente via PIX, com envio antecipado do comprovante.\n`;
+      message += `*Chave PIX:* XXX-XXX-XXX-XX\n\n`;
+      message += `Aguardo a confirmação do pedido!`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+
+    // ==================== CONTROLE DAS GAVETAS (MENU E CARRINHO) ====================
+    const menuDrawer = document.getElementById('menu-drawer');
+    const menuBackdrop = document.getElementById('menu-backdrop');
+    const cartDrawer = document.getElementById('cart-drawer');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+
+    function openMenu() {
+      menuBackdrop.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        menuBackdrop.classList.remove('opacity-0');
+        menuDrawer.classList.remove('-translate-x-full');
+      });
+    }
+
+    function closeMenu() {
+      menuBackdrop.classList.add('opacity-0');
+      menuDrawer.classList.add('-translate-x-full');
+      setTimeout(() => menuBackdrop.classList.add('hidden'), 300);
+    }
+
+    function openCart() {
+      cartBackdrop.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        cartBackdrop.classList.remove('opacity-0');
+        cartDrawer.classList.remove('translate-x-full');
+      });
+    }
+
+    function closeCart() {
+      cartBackdrop.classList.add('opacity-0');
+      cartDrawer.classList.add('translate-x-full');
+      setTimeout(() => cartBackdrop.classList.add('hidden'), 300);
+    }
+
+    // Event Listeners
+    document.getElementById('open-menu-btn').addEventListener('click', openMenu);
+    document.getElementById('close-menu-btn').addEventListener('click', closeMenu);
+    menuBackdrop.addEventListener('click', closeMenu);
+
+    document.getElementById('open-cart-btn').addEventListener('click', openCart);
+    document.getElementById('close-cart-btn').addEventListener('click', closeCart);
+    cartBackdrop.addEventListener('click', closeCart);
+
+    // Fecha o menu lateral ao clicar em qualquer link
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Fecha gavetas com tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+        closeCart();
+      }
+    });
+
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMenu();
+      updateCartUI();
+    });
+  </script>
+</body>
+</html>
